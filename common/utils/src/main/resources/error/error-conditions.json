@@ -1045,16 +1045,6 @@
           "The input of <functionName> can't be <dataType> type data."
         ]
       },
-      "UNSUPPORTED_UDF_INPUT_TYPE" : {
-        "message" : [
-          "UDFs do not support '<dataType>' as an input data type."
-        ]
-      },
-      "UNSUPPORTED_UDF_OUTPUT_TYPE" : {
-        "message" : [
-          "UDFs do not support '<dataType>' as an output data type."
-        ]
-      },
       "VALUE_OUT_OF_RANGE" : {
         "message" : [
           "The <exprName> must be between <valueRange> (current value = <currentValue>)."
@@ -3319,6 +3309,12 @@
     ],
     "sqlState" : "22023"
   },
+  "INVALID_VARIANT_SHREDDING_SCHEMA" : {
+    "message" : [
+      "The schema `<schema>` is not a valid variant shredding schema."
+    ],
+    "sqlState" : "22023"
+  },
   "INVALID_WHERE_CONDITION" : {
     "message" : [
       "The WHERE condition <condition> contains invalid expressions: <expressionList>.",
@@ -4233,12 +4229,6 @@
     ],
     "sqlState" : "42802"
   },
-  "STATEFUL_PROCESSOR_CANNOT_REINITIALIZE_STATE_ON_KEY" : {
-    "message" : [
-      "Cannot re-initialize state on the same grouping key during initial state handling for stateful processor. Invalid grouping key=<groupingKey>."
-    ],
-    "sqlState" : "42802"
-  },
   "STATEFUL_PROCESSOR_DUPLICATE_STATE_VARIABLE_DEFINED" : {
     "message" : [
       "State variable with name <stateVarName> has already been defined in the StatefulProcessor."
@@ -4696,6 +4686,12 @@
       "Unable to infer schema for <format>. It must be specified manually."
     ],
     "sqlState" : "42KD9"
+  },
+  "UNANALYZABLE_EXPRESSION" : {
+    "message" : [
+      "The plan contains an unanalyzable expression <expr> that holds the analysis."
+    ],
+    "sqlState" : "03000"
   },
   "UNBOUND_SQL_PARAMETER" : {
     "message" : [
