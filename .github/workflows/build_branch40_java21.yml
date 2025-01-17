@@ -17,11 +17,11 @@
 # under the License.
 #
 
-name: "Build / Coverage (master, Scala 2.13, Hadoop 3, JDK 17)"
+name: "Build (branch-4.0, Scala 2.13, Hadoop 3, JDK 21)"
 
 on:
   schedule:
-    - cron: '0 10 * * *'
+    - cron: '0 5 * * *'
   workflow_dispatch:
 
 jobs:
@@ -32,18 +32,26 @@ jobs:
     uses: ./.github/workflows/build_and_test.yml
     if: github.repository == 'apache/spark'
     with:
-      java: 17
-      branch: master
+      java: 21
+      branch: branch-4.0
       hadoop: hadoop3
       envs: >-
         {
           "PYSPARK_IMAGE_TO_TEST": "python-311",
           "PYTHON_TO_TEST": "python3.11",
-          "PYSPARK_CODECOV": "true"
+          "SKIP_MIMA": "true",
+          "SKIP_UNIDOC": "true",
+          "DEDICATED_JVM_SBT_TESTS": "org.apache.spark.sql.execution.datasources.parquet.ParquetFileFormatV1Suite,org.apache.spark.sql.execution.datasources.parquet.ParquetFileFormatV2Suite,org.apache.spark.sql.execution.datasources.orc.OrcSourceV1Suite,org.apache.spark.sql.execution.datasources.orc.OrcSourceV2Suite"
         }
       jobs: >-
         {
-          "pyspark": "true"
+          "build": "true",
+          "pyspark": "true",
+          "sparkr": "true",
+          "tpcds-1g": "true",
+          "docker-integration-tests": "true",
+          "yarn": "true",
+          "k8s-integration-tests": "true",
+          "buf": "true",
+          "ui": "true"
         }
-    secrets:
-      codecov_token: ${{ secrets.CODECOV_TOKEN }}
