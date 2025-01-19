@@ -15,16 +15,7 @@
 # limitations under the License.
 #
 
-align = none
-align.openParenDefnSite = false
-align.openParenCallSite = false
-align.tokens = []
-importSelectors = "singleLine"
-optIn = {
-  configStyleArguments = false
-}
-danglingParentheses.preset = false
-docstrings.style = Asterisk
-maxColumn = 98
-runner.dialect = scala213
-version = 3.8.5
+# Spark Connect ML uses ServiceLoader to find out the supported Spark Ml evaluators.
+# So register the supported evaluator here if you're trying to add a new one.
+
+org.apache.spark.sql.connect.ml.MyRegressionEvaluator
