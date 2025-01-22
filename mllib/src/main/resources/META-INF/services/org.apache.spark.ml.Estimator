@@ -39,3 +39,13 @@ org.apache.spark.ml.clustering.BisectingKMeans
 
 # recommendation
 org.apache.spark.ml.recommendation.ALS
+
+
+# fpm
+org.apache.spark.ml.fpm.FPGrowth
+
+
+# feature
+org.apache.spark.ml.feature.StandardScaler
+org.apache.spark.ml.feature.MaxAbsScaler
+org.apache.spark.ml.feature.MinMaxScaler

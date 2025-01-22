@@ -18,6 +18,7 @@
 package org.apache.spark.sql.connect.ml
 
 import java.util.{Optional, ServiceLoader}
+import java.util.stream.Collectors
 
 import scala.collection.immutable.HashSet
 import scala.jdk.CollectionConverters._
@@ -50,8 +51,18 @@ private[ml] object MLUtils {
   private def loadOperators(mlCls: Class[_]): Map[String, Class[_]] = {
     val loader = Utils.getContextOrSparkClassLoader
     val serviceLoader = ServiceLoader.load(mlCls, loader)
-    val providers = serviceLoader.asScala.toList
-    providers.map(est => est.getClass.getName -> est.getClass).toMap
+    // Instead of using the iterator, we use the "stream()" method that allows
+    // to iterate over a collection of providers that do not instantiate the class
+    // directly. Since there is no good way to convert a Java stream to a Scala stream,
+    // we collect the Java stream to a Java map and then convert it to a Scala map.
+    serviceLoader
+      .stream()
+      .collect(
+        Collectors.toMap(
+          (est: ServiceLoader.Provider[_]) => est.`type`().getName,
+          (est: ServiceLoader.Provider[_]) => est.`type`()))
+      .asScala
+      .toMap
   }
 
   private def parseInts(ints: proto.Ints): Array[Int] = {
@@ -328,6 +339,30 @@ private[ml] object MLUtils {
   }
 
   /**
+   * Get the Transformer instance according to the proto information
+   *
+   * @param sessionHolder
+   *   session holder to hold the Spark Connect session state
+   * @param operator
+   *   MlOperator information
+   * @param params
+   *   The optional parameters of the transformer
+   * @return
+   *   the transformer
+   */
+  def getTransformer(
+      sessionHolder: SessionHolder,
+      operator: proto.MlOperator,
+      params: Option[proto.MlParams]): Transformer = {
+    val name = replaceOperator(sessionHolder, operator.getName)
+    val uid = operator.getUid
+
+    // Load the transformers by ServiceLoader everytime
+    val transformers = loadOperators(classOf[Transformer])
+    getInstance[Transformer](name, uid, transformers, params)
+  }
+
+  /**
    * Get the Evaluator instance according to the proto information
    *
    * @param sessionHolder
@@ -414,6 +449,11 @@ private[ml] object MLUtils {
   // leave a security hole, we define an allowed attribute list that can be accessed.
   // The attributes could be retrieved from the corresponding python class
   private lazy val ALLOWED_ATTRIBUTES = HashSet(
+    "mean", // StandardScalerModel
+    "std", // StandardScalerModel
+    "maxAbs", // MaxAbsScalerModel
+    "originalMax", // MinMaxScalerModel
+    "originalMin", // MinMaxScalerModel
     "toString",
     "toDebugString",
     "numFeatures",
@@ -489,7 +529,9 @@ private[ml] object MLUtils {
     "recommendForAllUsers", // ALSModel
     "recommendForAllItems", // ALSModel
     "recommendForUserSubset", // ALSModel
-    "recommendForItemSubset" // ALSModel
+    "recommendForItemSubset", // ALSModel
+    "associationRules", // FPGrowthModel
+    "freqItemsets" // FPGrowthModel
   )
 
   def invokeMethodAllowed(obj: Object, methodName: String): Object = {
